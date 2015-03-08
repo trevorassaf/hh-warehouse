@@ -1,0 +1,32 @@
+[
+    {
+        "name": "trevorassaf/hh-utils",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/trevorassaf/hh-utils",
+            "reference": "acb8cbc9ea4c74c822d07be5d1f8769263b1543f"
+        },
+        "time": "2015-03-07 08:10:32",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "Builder.hh"
+            ]
+        },
+        "description": "HHVM utility classes",
+        "homepage": "https://github.com/trevorassaf/hh-utils/",
+        "keywords": [
+            "hack",
+            "hhvm",
+            "utility"
+        ]
+    }
+]

@@ -1,0 +1,48 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "ba63de302d6cb9b90f0fc1bcdb943fbf",
+    "packages": [
+        {
+            "name": "trevorassaf/hh-utils",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/trevorassaf/hh-utils",
+                "reference": "acb8cbc9ea4c74c822d07be5d1f8769263b1543f"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "Builder.hh"
+                ]
+            },
+            "description": "HHVM utility classes",
+            "homepage": "https://github.com/trevorassaf/hh-utils/",
+            "keywords": [
+                "hack",
+                "hhvm",
+                "utility"
+            ],
+            "time": "2015-03-07 08:10:32"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "trevorassaf/hh-utils": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
