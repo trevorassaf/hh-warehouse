@@ -9,4 +9,5 @@ enum DtType: int {
   FOREIGN_KEY = 0x05;
   DATE = 0x06;
   TIMESTAMP = 0x07;
+  FLOAT = 0x08;
 }

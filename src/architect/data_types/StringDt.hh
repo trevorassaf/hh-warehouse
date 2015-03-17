@@ -3,11 +3,10 @@
 class StringDt extends Dt {
   
   public function __construct(
-    int $first_length
+    int $first_length,
+    bool $is_nullable=false
   ) {
-    parent::__construct();
-    $this->hasFirstLength = true;
-    $this->firstLength = $first_length;
+    parent::__construct($is_nullable, $first_length);
   }
 
   public function getType(): DtType {

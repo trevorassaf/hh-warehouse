@@ -2,15 +2,16 @@
 
 abstract class Dt {
 
-  protected ?int $firstLength;
-  protected ?int $secondLength;
+  private bool $hasFirstLength;
+  private bool $hasSecondLength;
 
-  protected bool $hasFirstLength;
-  protected bool $hasSecondLength;
-
-  public function __construct() {
-    $this->hasFirstLength = false;
-    $this->hasSecondLength = false;
+  public function __construct(
+    private bool $isNullable=false,
+    private ?int $firstLength=null,
+    private ?int $secondLength=null
+  ) {
+    $this->hasFirstLength = $this->firstLength !== null;
+    $this->hasSecondLength = $this->secondLength !== null;
   }
 
   abstract public function getType(): DtType;
