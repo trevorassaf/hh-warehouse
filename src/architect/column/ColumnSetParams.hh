@@ -21,7 +21,7 @@ class ColumnSetParams {
     return $this; 
   }
 
-  public function getColumns(): ImmColumnMap {
-    return $this->columns->toImmMap(); 
+  public function getColumns(): ImmSet<Column> {
+    return $this->columns->toImmSet(); 
   }
 }

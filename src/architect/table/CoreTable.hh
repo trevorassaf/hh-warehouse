@@ -1,11 +1,5 @@
 <?hh // strict
 
-type PrimaryKey = ImmSet<Column>;
-
-type UniqueKey = ImmSet<Column>;
-type UniqueKeySet = Set<UniqueKey>;
-type ImmUniqueKeySet = ImmSet<UniqueKey>;
-
 // Column map types
 type IntegerColumnMap = Map<string, IntegerColumn>;
 type ImmIntegerColumnMap = ImmMap<string, IntegerColumn>;
@@ -24,54 +18,66 @@ type ImmTimestampColumnMap = ImmMap<string, TimestampColumn>;
 
 class CoreTable {
 
+  // Metadata
   private string $name;
-  private PrimaryKey $primaryKey; 
-  private UniqueKeySet $uniqueKeySet;
-  private IntegerColumnMap $integerColumns;
-  private StringColumnMap $stringColumns;
-  private BoolColumnMap $boolColumns;
-  private DateColumnMap $dateColumns;
-  private TimestampColumnMap $timestampColumns;
+
+  // Constraints 
+  private ?ColumnSet $primaryKey;
+  private Set<ColumnSet> $uniqueKeySet;
+
+  // Data columns 
+  private ?IntegerColumnMap $integerColumns;
+  private ?StringColumnMap $stringColumns;
+  private ?BoolColumnMap $boolColumns;
+  private ?DateColumnMap $dateColumns;
+  private ?TimestampColumnMap $timestampColumns;
 
   public function __construct(string $name) {
     $this->name = $name;
-    $this->primaryKey = ImmSet{};
     $this->uniqueKeySet = Set{};
-
-    // Column maps
-    $this->integerColumns = Map{};
-    $this->stringColumns = Map{};
-    $this->boolColumns = Map{};
-    $this->dateColumns = Map{};
-    $this->timestampColumns = Map{};
   }
   
   public function bindIntegerColumn(IntegerColumn $column): this {
     $this->validateNewColumn($column);
+    if ($this->integerColumns === null) {
+      $this->integerColumns = Map{};
+    }
     $this->integerColumns[$column->getName()] = $column;
     return $this;
   }
   
   public function bindStringColumn(StringColumn $column): this {
     $this->validateNewColumn($column);
+    if ($this->stringColumns === null) {
+      $this->stringColumns = Map{};
+    }
     $this->stringColumns[$column->getName()] = $column;
     return $this;
   }
   
   public function bindBoolColumn(BoolColumn $column): this {
     $this->validateNewColumn($column);
+    if ($this->boolColumns === null) {
+      $this->boolColumns = Map{};
+    }
     $this->boolColumns[$column->getName()] = $column;
     return $this;
   }
 
   public function bindDateColumn(DateColumn $column): this {
     $this->validateNewColumn($column);
+    if ($this->dateColumns === null) {
+      $this->dateColumns = Map{};
+    }
     $this->dateColumns[$column->getName()] = $column;
     return $this;
   }
   
   public function bindTimestampColumn(TimestampColumn $column): this {
     $this->validateNewColumn($column);
+    if ($this->timestampColumns === null) {
+      $this->timestampColumns = Map{};
+    }
     $this->timestampColumns[$column->getName()] = $column;
     return $this;
   }
@@ -85,27 +91,45 @@ class CoreTable {
   }
 
   public function hasColumnName(string $column_name): bool {
-    return $this->integerColumns->containsKey($column_name) ||
-      $this->stringColumns->containsKey($column_name) ||
-      $this->boolColumns->containsKey($column_name) ||
-      $this->dateColumns->containsKey($column_name) ||
-      $this->timestampColumns->containsKey($column_name);
+    return ($this->integerColumns !== null && $this->integerColumns->containsKey($column_name)) ||
+      ($this->stringColumns !== null && $this->stringColumns->containsKey($column_name)) ||
+      ($this->boolColumns !== null && $this->boolColumns->containsKey($column_name)) ||
+      ($this->dateColumns !== null && $this->dateColumns->containsKey($column_name)) ||
+      ($this->timestampColumns !== null && $this->timestampColumns->containsKey($column_name));
   }
 
   public function getColumn(string $name): Column {
-    if ($this->integerColumns->containsKey($name)) {
-      return $this->integerColumns[$name];
-    } else if ($this->stringColumns->containsKey($name)) {
-      return $this->stringColumns[$name];
-    } else if ($this->boolColumns->containsKey($name)) {
-      return $this->boolColumns[$name];
-    } else if ($this->dateColumns->containsKey($name)) {
-      return $this->dateColumns[$name];
-    } else if ($this->timestampColumns->containsKey($name)) {
-      return $this->timestampColumns[$name];
+    $integer_columns = $this->integerColumns;
+    if ($integer_columns !== null && $integer_columns->containsKey($name)) {
+      return $integer_columns[$name];
+    } 
+
+    $string_columns = $this->stringColumns;
+    if ($string_columns !== null && $string_columns->containsKey($name)) {
+      return $string_columns[$name];
+    } 
+
+    $bool_columns = $this->boolColumns;
+    if ($bool_columns !== null && $bool_columns->containsKey($name)) {
+      return $bool_columns[$name];
+    } 
+
+    $date_columns = $this->dateColumns;
+    if ($date_columns !== null && $date_columns->containsKey($name)) {
+      return $date_columns[$name];
+    } 
+
+    $timestamp_columns = $this->timestampColumns;
+    if ($timestamp_columns !== null && $timestamp_columns->containsKey($name)) {
+      return $timestamp_columns[$name];
     }
 
     invariant(false, "CoreTable::getColumn() usage: column '{$name}' does not exist");
+  }
+
+  public function hasColumn(Column $column): bool {
+    return $this->hasColumnName($column->getName()) 
+        && $this->getColumn($column->getName()) == $column;
   }
 
   public function getIntegerColumns(): ImmIntegerColumnMap {
@@ -132,8 +156,14 @@ class CoreTable {
     return $this->name;
   }
 
-  public function addUniqueKey(UniqueKey $unique_key): this {
-    foreach ($unique_key as $column) {
+  public function addUniqueKey(ColumnSet $unique_key): this {
+    $this->validateUniquenessConstraint($unique_key);
+    $this->uniqueKeySet[] = $unique_key;
+    return $this;
+  }
+
+  private function validateUniquenessConstraint(ColumnSet $column_set): void {
+    foreach ($column_set->getColumns() as $column) {
       // Unique key columns must already exist in the table
       invariant(
         $this->hasColumnName($column->getName()),
@@ -152,12 +182,56 @@ class CoreTable {
         "CoreTable::addUniqueKey() usage: column '{$column->getName()}' cannot be nullable in a unique key!"
       );
     }
+  }
 
-    $this->uniqueKeySet[] = $unique_key;
+  public function getUniqueKeys(): ImmSet<ColumnSet> {
+    return $this->uniqueKeySet->toImmSet();
+  }
+
+  public function setPrimaryKey(ColumnSet $primary_key): this {
+    invariant(
+      $primary_key === null,
+      "CoreTable::setPrimaryKey() usage: primary key already set!"
+    );
+    
+    $this->validateUniquenessConstraint($primary_key);
+    $this->primaryKey = $primary_key;
     return $this;
   }
 
-  public function getUniqueKeys(): ImmUniqueKeySet {
-    return new ImmSet($this->uniqueKeySet);
+  public function getPrimaryKey(): ColumnSet {
+    invariant(
+      $this->primaryKey !== null,
+      "CoreTable::getPrimaryKey() usage: primary key does not exists!"
+    );
+
+    return $this->primaryKey;
+  }
+
+  public function hasPrimaryKey(): bool {
+    return $this->primaryKey !== null;
+  }
+  
+  public function hasUniqueColumn(Column $column): bool {
+    // Check primary key
+    $primary_key = $this->primaryKey;
+    if ($primary_key !== null && $primary_key->getColumns()->count() == 1) {
+      $primary_column = $primary_key->getColumns()->getIterator()->current();
+      if ($primary_column == $column) {
+        return true;
+      }
+    }
+
+    // Check unique keys
+    foreach ($this->uniqueKeySet as $unique_key) {
+      if ($unique_key->getColumns()->count() == 1) {
+        $unique_column = $unique_key->getColumns()->getIterator()->current();
+        if ($unique_column == $column) {
+          return true;
+        }
+      }
+    }    
+    
+    return false;
   }
 }

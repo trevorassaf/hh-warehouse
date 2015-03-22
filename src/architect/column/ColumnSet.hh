@@ -2,7 +2,7 @@
 
 class ColumnSet {
 
-  private ImmColumnMap $columns;
+  private ImmSet<Column> $columns;
 
   public function __construct(
     ColumnSetParams $column_set_params
@@ -10,7 +10,7 @@ class ColumnSet {
     $this->columns = $column_set_params->getColumns();
   }
 
-  public function getColumns(): ImmColumnMap {
+  public function getColumns(): ImmSet<Column> {
     return $this->columns;
   }
 }
