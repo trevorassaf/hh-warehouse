@@ -16,7 +16,7 @@ type ImmDateColumnMap = ImmMap<string, DateColumn>;
 type TimestampColumnMap = Map<string, TimestampColumn>;
 type ImmTimestampColumnMap = ImmMap<string, TimestampColumn>;
 
-class CoreTable {
+class CoreTable implements Table {
 
   // Metadata
   private string $name;

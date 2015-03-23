@@ -4,7 +4,7 @@ class ForeignKey {
 
   public function __construct(
     private Column $localColumn,
-    private CoreTable $foreignTable,
+    private Table $foreignTable,
     private Column $foreignColumn
   ) {
     // Verify column compatibility
@@ -30,7 +30,7 @@ class ForeignKey {
     return $this->localColumn;
   }
 
-  public function getForeignTable(): CoreTable {
+  public function getForeignTable(): Table {
     return $this->foreignTable;
   }
 
